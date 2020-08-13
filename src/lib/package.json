@@ -24,12 +24,4 @@
     "@angular/common": ">=7.0.0",
     "@angular/core": ">=7.0.0"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/angular/preboot"
-  },
-  "bugs": {
-    "url": "https://github.com/angular/preboot/issues"
-  },
-  "homepage": "https://github.com/angular/preboot"
 }
