@@ -5,21 +5,14 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import {
-  NodeContext,
-  PrebootAppData,
-  PrebootData,
-  PrebootEvent,
-  PrebootWindow,
-  ServerClientRoot,
-} from '../common/preboot.interfaces';
-import {getNodeKeyForPreboot} from '../common/get-node-key';
+import { NodeContext, PrebootAppData, PrebootData, PrebootEvent, PrebootWindow, ServerClientRoot } from '../common/preboot.interfaces';
+import { getNodeKeyForPreboot } from '../common/get-node-key';
 
 export function _window(): PrebootWindow {
   return {
     prebootData: (window as any)['prebootData'],
     getComputedStyle: window.getComputedStyle,
-    document: document
+    document: document,
   };
 }
 
@@ -61,7 +54,7 @@ export class EventReplayer {
     // loop through each of the preboot apps
     const prebootData = this.getWindow().prebootData || {};
     const apps = prebootData.apps || [];
-    apps.forEach(appData => this.replayForApp(appData));
+    apps.forEach((appData) => this.replayForApp(appData));
 
     // once all events have been replayed and buffers switched, then we cleanup preboot
     this.cleanup(prebootData);
@@ -79,7 +72,7 @@ export class EventReplayer {
       const events = appData.events || [];
 
       // replay all the events from the server view onto the client view
-      events.forEach(event => this.replayEvent(appData, event));
+      events.forEach((event) => this.replayEvent(appData, event));
     } catch (ex) {
       console.error(ex);
     }
@@ -103,7 +96,7 @@ export class EventReplayer {
     const clientNode = this.findClientNode({
       root: appData.root,
       node: serverNode,
-      nodeKey: nodeKey
+      nodeKey: nodeKey,
     });
 
     // if client node can't be found, log a warning
@@ -147,10 +140,14 @@ export class EventReplayer {
       const display = gcs(serverView).getPropertyValue('display') || 'block';
 
       // first remove the server view
-      serverView.remove ? serverView.remove() : (serverView.style.display = 'none');
-
       // now add the client view
-      clientView.style.display = display;
+
+      clientView.style.cssText = `display: ${display}; visibility:hidden; z-index: 0;position: absolute;top: 0;left: 0;right: 0;bottom: 0`;
+
+      setTimeout(() => {
+        serverView.remove ? serverView.remove() : (serverView.style.display = 'none');
+        clientView.style.visibility = 'visible';
+      }, 500);
     } catch (ex) {
       console.error(ex);
     }
@@ -182,10 +179,11 @@ export class EventReplayer {
     const doc = this.getWindow().document;
     const prebootOverlay = doc.getElementById('prebootOverlay');
     if (prebootOverlay) {
-      prebootOverlay.remove ?
-        prebootOverlay.remove() : prebootOverlay.parentNode !== null ?
-        prebootOverlay.parentNode.removeChild(prebootOverlay) :
-        prebootOverlay.style.display = 'none';
+      prebootOverlay.remove
+        ? prebootOverlay.remove()
+        : prebootOverlay.parentNode !== null
+        ? prebootOverlay.parentNode.removeChild(prebootOverlay)
+        : (prebootOverlay.style.display = 'none');
     }
 
     // clear out the data stored for each app
@@ -220,8 +218,7 @@ export class EventReplayer {
       const selection = activeNode.selection;
       if ((clientNode as HTMLInputElement).setSelectionRange && selection) {
         try {
-          (clientNode as HTMLInputElement)
-            .setSelectionRange(selection.start, selection.end, selection.direction);
+          (clientNode as HTMLInputElement).setSelectionRange(selection.start, selection.end, selection.direction);
         } catch (ex) {}
       }
     }
@@ -290,7 +287,7 @@ export class EventReplayer {
       // get the key for the client node
       const clientNodeKey = getNodeKeyForPreboot({
         root: root,
-        node: clientNode
+        node: clientNode,
       });
 
       // if the client node key is exact match for the server node key, then we
